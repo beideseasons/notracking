@@ -19,6 +19,7 @@ my @fhem_expected_list = ();
 my @fhem_history = ();
 my @timer_list = ();
 my %attributes = ();
+my $now = undef;
 
 sub reset_mocks{
 	%readings = ();
@@ -27,6 +28,7 @@ sub reset_mocks{
 	@fhem_expected_list = ();
 	@fhem_history = ();
     %attributes = ();
+    $now = undef;
 }
 
 
@@ -161,6 +163,16 @@ sub set_attr {
     $attributes{$device}{$name} = $value;
 }
 
+
+# Time ###############################################
+
+sub fhem_set_time{
+	($now) = @_;
+}
+
+sub TimeNow {
+    return $now;	
+}
 
 1; #end module
 
