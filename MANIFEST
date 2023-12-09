@@ -1,0 +1,9 @@
+MANIFEST
+t/manifest.t
+t/00-load.t
+t/fhem_test_mocks.pm
+t/perl_critic.t
+README.md
+LICENSE
+lib/Gardener.pm
+Makefile.PL
