@@ -13,7 +13,7 @@ use warnings;
 use POSIX;
 use experimental "smartmatch";
 use DateTime::Format::Strptime;
-
+use List::Util qw(min max);
 
 sub Gardener_Initialize {
     my ($hash) = @_;
@@ -30,7 +30,7 @@ sub Gardener_Initialize {
 	  "update_interval " .
 	  "review_interval " .
 	  "min_moisture ".
-	  "DBlog ";      
+	  "DbLog ";      
     return;
 }
 
@@ -65,19 +65,27 @@ package Gardener;
 
 sub Gardener::check {
     my ($hash) = @_;
-	my @devices = split / /, $hash->{devices};
-	my $verdict = 0;
-	my $messages = "";
-	
-	
-	foreach my $device (@devices) {
-		my ($d_verdict, $d_message) = check_device($hash,$device);
-		$verdict += $d_verdict;
-		$messages .= $d_message;
+	my $device_names = main::AttrVal($hash->{NAME},"devices",undef);
+    my $verdict = 1;
+    my $messages = "";
+
+	if ( !defined $device_names ) {
+		$verdict = 0;
+		 $messages .= "Error: no devices configured!";
+	} else {
+		
+		my @devices = split / /, $device_names;
+		
+		
+		foreach my $device (@devices) {
+			my ($d_verdict, $d_message) = check_device($hash,$device);
+			$verdict &= $d_verdict;
+			$messages .= $d_message;
+		}
 	}
-	
+		
     main::readingsBeginUpdate($hash);
-    main::readingsBulkUpdate($hash, "status", $verdict==0 ? "good":"problem" );
+    main::readingsBulkUpdate($hash, "status", $verdict==1 ? "good":"problem" );
     main::readingsBulkUpdate($hash, "status_message", $messages );
     main::readingsEndUpdate($hash, 1);
 	
@@ -86,27 +94,31 @@ sub Gardener::check {
 
 sub Gardener::check_device{
     my ($hash,$device) = @_;
-    my $myname = $hash->{NAME};
-	my $dblog = main::AttrVal($myname,"DBlog",undef);
-	my $verdict = 0;
+	my $dblog = main::AttrVal($hash->{NAME},"DbLog",undef);
+	my $verdict = 1;
 	my $message = "report for plant $device:\n";
 	
-	if ( ~defined $dblog ) {
-		return 1, "Error: Device $device is missing the DBlog attribute!";
+	if ( !defined $dblog ) {
+		return 0, "Error: Device $hash->{NAME} is missing the DbLog attribute!";
 	}
-	my @moisture_hist = get_history($dblog, $device, "moisture");
+	my @moisture_hist = get_history($hash, $device, "moisture");
 	
 	if (scalar(@moisture_hist) == 0) {
-		return 1, "Error reading history for plant $device!\n";
-	} else {
-	    my $max_moisture = max(@moisture_hist);
-	    if ($max_moisture < AttrVal($device,"min_moisture",20)) {
-	        $verdict +=1;
-	        $message .= "  moisture is too low: $max_moisture% instead of $hash->{min_moisture}%\n";
-	    } else {
-	        $message .= "  moisture is good: $max_moisture%\n";
-	    }
-	}
+		return 0, "Error reading history for plant $device!\n";
+	} 
+
+    my $max_moisture = 0;
+    foreach my $row (@moisture_hist) {
+    	$max_moisture = main::max($max_moisture, $row->{value});
+    }
+
+    if ($max_moisture < main::AttrVal($device,"min_moisture",20)) {
+        $verdict = 0;
+        $message .= "  moisture is too low: $max_moisture% instead of $hash->{min_moisture}%\n";
+    } else {
+        $message .= "  moisture is good: $max_moisture%\n";
+    }
+
 	$message .="\n";
 	
 	return ($verdict, $message);
@@ -115,21 +127,22 @@ sub Gardener::check_device{
 
 sub get_history {
 	my ($hash, $device, $reading) = @_;
-    my $myname = $hash->{NAME};
-	my $dblog = main::AttrVal($myname,"DBlog",undef);
+	my $dblog = main::AttrVal($hash->{NAME},"DbLog",undef);
 	my $now = datetime_from_timestamp( main::TimeNow() );
-    my $review_interval = main::AttrVal($myname,"review_interval","1440");
+    my $review_interval = main::AttrVal($hash->{NAME},"review_interval","1440");
     
     my $end_time = timestamp_from_datetime( $now );
     
     my $start_time = timestamp_from_datetime( $now->subtract( minutes=>$review_interval ) );
     
-	my $query_result = main::fhem("get $dblog - - $start_time $end_time $device:$reading");
+	my $query_result = main::fhem("get $dblog - - $start_time $end_time $device:$reading","");
 	my @result = ();
-	
+	if (!defined $query_result || length($query_result) == 0) {
+		return @result;
+	}
 	foreach my $line (split /\n/, $query_result) {
 		my ($timestamp, $value) = split / /, $line;
-		  push( @result, ($timestamp, $value) );
+		  push( @result, {timestamp => $timestamp, value => $value} );
 	}
 	
 	
