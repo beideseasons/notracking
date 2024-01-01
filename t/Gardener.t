@@ -50,7 +50,6 @@ sub test_check {
     Gardener::check($hash);
     print(ReadingsVal("gardener","status_message",undef)."\n");
     is(ReadingsVal("gardener","status",undef),"good");
-    #like(ReadingsVal("gardener","status_message",undef),qr/devices/);       	
 }
 
 sub test_check_no_devices {
@@ -85,7 +84,7 @@ sub test_check_device_empty_history {
     };	
     my $device ="some";
     my $reading = "moisture";
-    prepare_database($device, $reading,"logdb",$hash->{NAME}, "");
+    prepare_database($device, $reading,"logdb",$hash->{NAME}, "#randomstuff\n");
 
     my ($verdict, $messages) = Gardener::check_device($hash,$device);
     ok(~$verdict);
@@ -124,6 +123,10 @@ sub test_datetime_from_timestamp {
     is($dt->minute, 0);
     is($dt->second, 8);
     is(Gardener::timestamp_from_datetime($dt),$timestamp);
+
+    # now with a whitespace as separator
+    my $timestamp2 = '2017-01-25 21:00:08';
+    is($dt, Gardener::datetime_from_timestamp($timestamp2)); 
 }
 
 ######################################################
@@ -132,7 +135,8 @@ sub test_datetime_from_timestamp {
 
 sub get_test_data {
     return 
-q{2017-01-25_00:00:06 20.1
+q{#somedevice:somereading:::
+2017-01-25_00:00:06 20.1
 2017-01-25_01:00:08 20.1
 2017-01-25_02:00:06 20.1
 2017-01-25_03:00:06 20.0

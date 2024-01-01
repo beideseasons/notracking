@@ -36,7 +36,8 @@ sub Gardener_Initialize {
 
 
 sub Gardener_Define {
-    my ($hash, $a, $h) = @_;    
+    my ($hash, $a, $h) = @_;
+    InternalTimer(gettimeofday()+10, "Gardener_periodic_update", $hash);    
     return;
 }
 
@@ -53,14 +54,31 @@ sub Gardener_Get {
 	my ($hash,$a,$h) = @_;
     my $cmd = $a->[1];
     if ($cmd eq "check") {
-    	my ($verdict, $messages) = Gardener::check($hash);
-    	return $messages;
+    	Gardener::check($hash);
     } else {
     	return "unknown argument $cmd choose one of check:noArg";
     }
+    return;
 }
 
+sub Gardener_periodic_update {
+    my ($hash) = @_;
+    my $interval = AttrVal($hash->{NAME},"update_interval",1440) * 60;
+    Gardener::Log($hash,3,"periodic update");
+    InternalTimer(gettimeofday()+$interval, "Gardener_periodic_update", $hash);    
+    
+     Gardener::check($hash);
+    return;
+}
+
+######################################################
 package Gardener;
+
+sub Log {
+	my ($hash, $severity, $message) = @_;
+	return main::Log3($hash->{NAME},$severity, "Gardener $hash->{NAME}: $message");
+}
+
 
 
 sub Gardener::check {
@@ -99,12 +117,16 @@ sub Gardener::check_device{
 	my $message = "report for plant $device:\n";
 	
 	if ( !defined $dblog ) {
-		return 0, "Error: Device $hash->{NAME} is missing the DbLog attribute!";
+		my $msg = "Error: Device $hash->{NAME} is missing the DbLog attribute!";
+		Log($hash, 1, $msg);
+		return 0, $msg;
 	}
 	my @moisture_hist = get_history($hash, $device, "moisture");
 	
 	if (scalar(@moisture_hist) == 0) {
-		return 0, "Error reading history for plant $device!\n";
+		my $msg = "Error reading history for plant $device!\n";
+		Log($hash, 1, $msg);
+		return 0, $msg;
 	} 
 
     my $max_moisture = 0;
@@ -112,9 +134,10 @@ sub Gardener::check_device{
     	$max_moisture = main::max($max_moisture, $row->{value});
     }
 
-    if ($max_moisture < main::AttrVal($device,"min_moisture",20)) {
+    my $min_moisture =  main::AttrVal($device,"min_moisture",20);
+    if ($max_moisture < $min_moisture) {
         $verdict = 0;
-        $message .= "  moisture is too low: $max_moisture% instead of $hash->{min_moisture}%\n";
+        $message .= "  moisture is too low: masimum was at $max_moisture% instead of $min_moisture%\n";
     } else {
         $message .= "  moisture is good: $max_moisture%\n";
     }
@@ -136,13 +159,17 @@ sub get_history {
     my $start_time = timestamp_from_datetime( $now->subtract( minutes=>$review_interval ) );
     
 	my $query_result = main::fhem("get $dblog - - $start_time $end_time $device:$reading","");
+	Log($hash, 5, "result from query: ".$query_result);
+	
 	my @result = ();
-	if (!defined $query_result || length($query_result) == 0) {
+	if (!defined $query_result) {
 		return @result;
 	}
 	foreach my $line (split /\n/, $query_result) {
-		my ($timestamp, $value) = split / /, $line;
-		  push( @result, {timestamp => $timestamp, value => $value} );
+		if ( $line !~ m/^#/ ) {
+			my ($timestamp, $value) = split / /, $line;
+			  push( @result, {timestamp => $timestamp, value => $value} );
+		}
 	}
 	
 	
@@ -163,10 +190,16 @@ sub timestamp_from_datetime {
 }
 
 # convert a timestamp string to a DateTime object
+# Sometimes date and time are separated by a " " (whitespace) and sometimes by a "_".
+# So we support both options here.
 sub datetime_from_timestamp {
     my ($timestamp) = @_;
+    my $sep = " ";
+    if ($timestamp =~ m/_/ ) {
+    	$sep = "_";
+    }
     my $strp = DateTime::Format::Strptime->new(
-	   pattern => '%F_%T',
+	   pattern => '%F'.$sep.'%T',
 	   time_zone => 'local',
 	);
 	return $strp->parse_datetime($timestamp);

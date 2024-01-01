@@ -34,8 +34,8 @@ sub reset_mocks{
 
 # Logging ################################
 
-sub Log{
-print "Log: $_[0] , $_[1] \n"; 
+sub Log3{
+print "Log: $_[0] , $_[1] , $_[2] \n"; 
 }
 
 
