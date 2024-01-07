@@ -30,7 +30,9 @@ sub Gardener_Initialize {
 	  "update_interval " .
 	  "review_interval " .
 	  "min_moisture ".
-	  "DbLog ";      
+	  "DbLog ".
+	  "MSGMail ".
+	  "send_email:problem_only,always,never";      
     return;
 }
 
@@ -67,7 +69,7 @@ sub Gardener_periodic_update {
     Gardener::Log($hash,3,"periodic update");
     InternalTimer(gettimeofday()+$interval, "Gardener_periodic_update", $hash);    
     
-     Gardener::check($hash);
+    Gardener::check($hash);
     return;
 }
 
@@ -85,27 +87,30 @@ sub Gardener::check {
     my ($hash) = @_;
 	my $device_names = main::AttrVal($hash->{NAME},"devices",undef);
     my $verdict = 1;
-    my $messages = "";
+    my @messages = ();
 
 	if ( !defined $device_names ) {
 		$verdict = 0;
-		 $messages .= "Error: no devices configured!";
+		 push(@messages, "Error: no devices configured!" );
 	} else {
 		
 		my @devices = split / /, $device_names;
 		
 		
 		foreach my $device (@devices) {
-			my ($d_verdict, $d_message) = check_device($hash,$device);
+			my ($d_verdict, @d_message) = check_device($hash,$device);
 			$verdict &= $d_verdict;
-			$messages .= $d_message;
+			push(@messages, @d_message);
 		}
 	}
-		
+	
+	print(join("<br>",@messages));
     main::readingsBeginUpdate($hash);
     main::readingsBulkUpdate($hash, "status", $verdict==1 ? "good":"problem" );
-    main::readingsBulkUpdate($hash, "status_message", $messages );
+    main::readingsBulkUpdate($hash, "status_message", join("<br>",@messages) );
     main::readingsEndUpdate($hash, 1);
+	
+	trigger_email($hash,$verdict,@messages);
 	
 	return;
 }
@@ -114,7 +119,7 @@ sub Gardener::check_device{
     my ($hash,$device) = @_;
 	my $dblog = main::AttrVal($hash->{NAME},"DbLog",undef);
 	my $verdict = 1;
-	my $message = "report for plant $device:\n";
+	my @message = ("report for plant $device:");
 	
 	if ( !defined $dblog ) {
 		my $msg = "Error: Device $hash->{NAME} is missing the DbLog attribute!";
@@ -137,14 +142,14 @@ sub Gardener::check_device{
     my $min_moisture =  main::AttrVal($device,"min_moisture",20);
     if ($max_moisture < $min_moisture) {
         $verdict = 0;
-        $message .= "  moisture is too low: masimum was at $max_moisture% instead of $min_moisture%\n";
+        push( @message, "  moisture is too low: maximum was at $max_moisture% instead of $min_moisture%");
     } else {
-        $message .= "  moisture is good: $max_moisture%\n";
+        push( @message,  "  moisture is good: $max_moisture%\n");
     }
 
-	$message .="\n";
+	push( @message, "");
 	
-	return ($verdict, $message);
+	return ($verdict, @message);
 	 
 }
 
@@ -205,7 +210,24 @@ sub datetime_from_timestamp {
 	return $strp->parse_datetime($timestamp);
 }
 
-
+# send out email notifications
+sub trigger_email {
+	my ($hash,$verdict,@messages) = @_;
+	my $msgmail = main::AttrVal($hash->{NAME},"MSGMail",undef);
+	my $send_email = main::AttrVal($hash->{NAME},"send_email","problem_only");
+	
+	if (defined $msgmail){
+		if ( $send_email eq "always" or (!$verdict and $send_email eq "problem_only" )) {
+			main::fhem("set $msgmail clear");
+			foreach my $line (@messages) {
+				main::fhem("set $msgmail add $line");
+			}
+            main::fhem("set $msgmail send");
+            main::fhem("set $msgmail clear");
+		}
+	}
+	return;
+}
 
 
 1; # End of the file

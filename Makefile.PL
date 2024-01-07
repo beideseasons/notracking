@@ -39,7 +39,8 @@ fhem_local_deploy:
 fhem_local_fetch:
 	$(CP) -p ~/git/fhem/FHEM/97_Gardener.pm lib/Gardener.pm 
 
-fhem_release: 
+fhem_release:
+	mkdir -p update/FHEM 
 	$(CP) -p lib/Gardener.pm update/FHEM/97_Gardener.pm
 	cd update;git log -n10 > CHANGED
 	perl create_update.pm
