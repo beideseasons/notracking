@@ -1,0 +1,30 @@
+commit 9abcba13662af61e313e7aab929d6586b5d68f4d
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sat Jan 28 22:10:55 2017 +0100
+
+    periodic check woring
+
+commit 0801c908a9f16096344ed46904b103bdb847c641
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sat Jan 28 21:07:23 2017 +0100
+
+    improved tests, fixed several bugs
+
+commit a0df9af63d88e28d09370f2a4b184c28b2919860
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sat Jan 28 14:57:20 2017 +0100
+
+    implemented first simple check, but does not yet return useful
+    results
+
+commit 44d185fcd2c9badbd485a061acc1d4778ae3da01
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sat Jan 28 12:58:11 2017 +0100
+
+    imported basic project setup nothing working yet
+
+commit 8b468edeb01f8954ff6ed3f6bb9f53e0a3c39816
+Author: ChristianKuehnel <christian.kuehnel@gmail.com>
+Date:   Sat Jan 28 11:30:15 2017 +0100
+
+    Initial commit
