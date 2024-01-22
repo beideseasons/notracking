@@ -10,7 +10,7 @@ use Cwd 'abs_path';
     
 my $update_root = abs_path(catfile(dirname($0),"update"));
 my $fhem_root = catfile($update_root,"FHEM");
-my $output_file = catfile($update_root,"control_gardener.txt");
+my $output_file = catfile($update_root,"controls_gardener.txt");
 
 print("update root directory: $update_root\n");
 
