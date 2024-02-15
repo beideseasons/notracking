@@ -13,6 +13,7 @@ use warnings;
 use POSIX;
 use experimental "smartmatch";
 use DateTime::Format::Strptime;
+use List::Util qw(min max);
 
 sub Gardener_Initialize {
     my ($hash) = @_;
@@ -135,7 +136,7 @@ sub Gardener::check_device{
 
     my $max_moisture = 0;
     foreach my $row (@moisture_hist) {
-    	$max_moisture = max($max_moisture, $row->{value});
+    	$max_moisture = main::max($max_moisture, $row->{value});
     }
 
     my $min_moisture =  main::AttrVal($device,"min_moisture",20);
@@ -227,11 +228,6 @@ sub trigger_email {
 	}
 	return;
 }
-
-# writing my own min/max functions as List::Util required compilation and that is not available on all targets
-sub max { $_[$_[0] < $_[1]] }
-sub min { $_[$_[0] > $_[1]] }
-	
 
 
 1; # End of the file

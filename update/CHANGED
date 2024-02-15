@@ -1,3 +1,9 @@
+commit 0d2015e78a7f456509be586888d674fee1808461
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sat Jan 28 23:34:51 2017 +0100
+
+    new release
+
 commit 4f5e18dd89001510d0505ce663123b2b2f3dfcfd
 Author: Christian Kühnel <christian.kuehnel@gmail.com>
 Date:   Sat Jan 28 23:32:45 2017 +0100
@@ -52,9 +58,3 @@ Author: Christian Kühnel <christian.kuehnel@gmail.com>
 Date:   Sat Jan 28 12:58:11 2017 +0100
 
     imported basic project setup nothing working yet
-
-commit 8b468edeb01f8954ff6ed3f6bb9f53e0a3c39816
-Author: ChristianKuehnel <christian.kuehnel@gmail.com>
-Date:   Sat Jan 28 11:30:15 2017 +0100
-
-    Initial commit

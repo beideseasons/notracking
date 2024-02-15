@@ -4,15 +4,16 @@ Device for FHEM to monitor the status of plants (in combination with a Xiaomi Mi
 # Installation
 
 ## Requirements
+On Alpine Linux install these packages:
+```
+apk add perl-datetime gcc perl-dev musl-dev
+```
+
 Install the required Perl modules via cpan:
 ```
 cpan -T DateTime DateTime::Format::Strptime
 ```
 
-or on Alpine Linux:
-```
-apk add perl-datetime 
-```
 
 ## Adding update site
 For an automatic installation and updates of this project run these commands in fhem:
