@@ -86,9 +86,9 @@ sub test_check_device_empty_history {
     my $reading = "moisture";
     prepare_database($device, $reading,"logdb",$hash->{NAME}, "#randomstuff\n");
 
-    my ($verdict, $messages) = Gardener::check_device($hash,$device);
+    my ($verdict, @messages) = Gardener::check_device($hash,$device);
     ok(~$verdict);
-    like($messages, qr/Error/);
+    like(join(';',@messages), qr/Error/);
 }
 
 
