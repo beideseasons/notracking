@@ -77,6 +77,19 @@ sub Gardener_periodic_update {
 ######################################################
 package Gardener;
 
+my $constants = {
+	min_moisture=> 20,
+	min_conductivity=> 500,
+    min_battery=> 20,
+};
+
+my $units = {
+    moisture=> "%",
+    conductivity=> "us/cm",
+    battery=> "%",
+    brightness=>"lux",	
+};
+
 sub Log {
 	my ($hash, $severity, $message) = @_;
 	return main::Log3($hash->{NAME},$severity, "Gardener $hash->{NAME}: $message");
@@ -84,7 +97,7 @@ sub Log {
 
 
 
-sub Gardener::check {
+sub check {
     my ($hash) = @_;
 	my $device_names = main::AttrVal($hash->{NAME},"devices",undef);
     my $verdict = 1;
@@ -128,30 +141,33 @@ sub check_device{
 		return 0, $msg;
 	}
 	
-	my $moisture = check_moisture($hash,$device);
-    $verdict &= $moisture->{verdict};
-    push(@messages,$moisture->{message});
+	foreach my $reading (("moisture","conductivity","battery")) {
+	    my $history = check_reading_history($hash,$device,$reading);
+	    $verdict &= $history->{verdict};
+	    push(@messages,$history->{message});
+	}
 	
 	return ($verdict, @messages);
 	 
 }
 
-sub check_moisture {
-	my ($hash,$device) = @_;
-    my $moisture = get_history($hash, $device, "moisture");
-    my $min_moisture =  main::AttrVal($device,"min_moisture",20);
+sub check_reading_history {
+	my ($hash,$device,$reading) = @_;
+    my $history = get_history($hash, $device, $reading);
+    my $min_value =  main::AttrVal($device,"min_$reading",$constants->{"min_$reading"});
     my $verdict = undef;
     my $message = undef;
+    my $unit = $units->{$reading};
     
-    if (scalar(@{$moisture->{list}}) == 0) {
+    if (scalar(@{$history->{list}}) == 0) {
 	    $verdict = 0;
-	    $message = "  Error: did not get any moisture values for $device";
-    } elsif ($moisture->{max} < $min_moisture) {
+	    $message = "  Error: did not get any $reading values for $device";
+    } elsif ($history->{max} < $min_value) {
         $verdict = 0;
-        $message = "  moisture is too low: maximum was at $moisture->{max}% instead of $min_moisture%";
+        $message = "  $reading is too low: maximum was at $history->{max} $unit instead of $min_value $unit";
     } else {
         $verdict = 1;
-        $message = "  moisture is good: $moisture->{max}%";
+        $message = "  $reading is good: $history->{max} $unit";
     } 
 
     return  { verdict=>$verdict, message=>$message};
@@ -169,36 +185,40 @@ sub get_history {
     my $start_time = timestamp_from_datetime( $now->subtract( minutes=>$review_interval ) );
     
 	my $query_result = main::fhem("get $dblog - - $start_time $end_time $device:$reading","");
-	Log($hash, 5, "result from query: ".$query_result);
 	
+    my $max_value = undef;
+    my $min_value = undef;
+    my $avg_value = undef;
+
 	my @result = ();
-	if (!defined $query_result) {
-        return @result;
+	if (defined $query_result) {
+	    Log($hash, 5, "result from query: $query_result");
+	    foreach my $line (split /\n/, $query_result) {
+	        if ( $line !~ m/^#/ ) {
+	            my ($timestamp, $value) = split / /, $line;
+	            push( @result, {timestamp => $timestamp, value => $value} );
+	            }
+	    }
+	    
+	    if (scalar(@result) == 0) {
+	        my $msg = "History for plant $device ist empty";
+	        Log($hash, 1, $msg);
+	        return { min=>undef, max=>undef, average=>undef, list=>[()] };
+	    } 
+	    
+	    $max_value = $result[0]->{value};
+	    $min_value = $max_value;
+	    my $sum_values = 0;
+	    
+	    foreach my $row (@result) {
+	        $max_value = main::max($max_value, $row->{value});
+	        $min_value = main::max($min_value, $row->{value});
+	        $sum_values += $row->{value};
+	    }
+	    
+	    $avg_value = $sum_values / scalar(@result);
+		
 	}
-	foreach my $line (split /\n/, $query_result) {
-	    if ( $line !~ m/^#/ ) {
-	        my ($timestamp, $value) = split / /, $line;
-	        push( @result, {timestamp => $timestamp, value => $value} );
-	        }
-	}
-	
-    if (scalar(@result) == 0) {
-        my $msg = "History for plant $device ist empty";
-        Log($hash, 1, $msg);
-        return { min=>undef, max=>undef, average=>undef, list=>[()] };
-    } 
-    
-    my $max_value = $result[0]->{value};
-    my $min_value = $max_value;
-    my $sum_values = 0;
-    
-    foreach my $row (@result) {
-        $max_value = main::max($max_value, $row->{value});
-        $min_value = main::max($min_value, $row->{value});
-        $sum_values += $row->{value};
-    }
-    
-    my $avg_value = $sum_values / scalar(@result);
 	
 	return { 
 		min => $min_value, 

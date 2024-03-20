@@ -46,7 +46,7 @@ sub test_check {
     set_attr($hash->{NAME}, "devices", $device);
     #set_attr("gardener", "DbLog", $dblog);
     
-	prepare_database($device,"moisture",$dblog,$hash->{NAME}, get_test_data() );
+	prepare_database($device,$dblog,$hash->{NAME} );
     Gardener::check($hash);
     print(ReadingsVal("gardener","status_message",undef)."\n");
     is(ReadingsVal("gardener","status",undef),"good");
@@ -83,8 +83,7 @@ sub test_check_device_empty_history {
         "NAME" => "gardener"
     };	
     my $device ="some";
-    my $reading = "moisture";
-    prepare_database($device, $reading,"logdb",$hash->{NAME}, "#randomstuff\n");
+    prepare_database($device, "logdb",$hash->{NAME}, "#randomstuff\n");
 
     my ($verdict, @messages) = Gardener::check_device($hash,$device);
     ok(~$verdict);
@@ -102,13 +101,15 @@ sub test_get_history {
         "NAME" => "gardener"
     };
     my $device = "dev1";
-    my $reading = "read1";
+    my $reading = "moisture";
     
-    prepare_database($device, $reading,"logdb",$hash->{NAME}, get_test_data());
+    prepare_database($device, "logdb",$hash->{NAME});
     
-    my @history = Gardener::get_history($hash,$device,$reading);
-    
-    	
+    my $history = Gardener::get_history($hash,$device,$reading);
+    ok( scalar @{$history->{list}} > 0);
+    ok(defined $history->{min});
+    ok(defined $history->{max});
+    ok(defined $history->{average});
 }
 
 sub test_datetime_from_timestamp {
@@ -132,11 +133,16 @@ sub test_datetime_from_timestamp {
 ######################################################
 # functions to prepare data for tests
 
+# test data to fill into a mock DbLog
+# queries to get the test data:
+# get logdb - - 2017-01-25_08:00:00 2017-01-26_08:00:00 Palmfarn:battery
+# get logdb - - 2017-01-25_08:00:00 2017-01-26_08:00:00 Palmfarn:moisture
+# get logdb - - 2017-01-25_08:00:00 2017-01-26_08:00:00 Palmfarn:conductivity
 
-sub get_test_data {
-    return 
-q{#somedevice:somereading:::
-2017-01-25_00:00:06 20.1
+sub get_dblog_test_data {
+	my ($reading) = @_;
+    my $dblog_test_data = {
+moisture => q{2017-01-25_00:00:06 20.1
 2017-01-25_01:00:08 20.1
 2017-01-25_02:00:06 20.1
 2017-01-25_03:00:06 20.0
@@ -159,12 +165,54 @@ q{#somedevice:somereading:::
 2017-01-25_20:00:06 20.1
 2017-01-25_21:00:08 20.1
 2017-01-25_22:00:06 20.1
-2017-01-25_23:00:09 20.1}   
+2017-01-25_23:00:09 20.1
+#Palmfarn:moisture:::},   
+
+battery => q{017-01-25_08:00:06 99
+2017-01-25_09:00:08 99
+2017-01-25_10:00:10 99
+2017-01-25_11:00:08 99
+2017-01-25_12:00:05 99
+2017-01-25_13:00:07 98
+2017-01-25_14:00:05 99
+2017-01-25_15:00:08 99
+2017-01-25_16:00:07 99
+2017-01-25_17:00:10 99
+2017-01-25_18:00:08 99
+2017-01-25_19:00:06 99
+2017-01-25_20:00:06 99
+2017-01-25_21:00:08 99
+2017-01-25_22:00:06 99
+2017-01-25_23:00:09 99
+2017-01-26_00:00:06 99
+2017-01-26_01:00:09 99
+2017-01-26_02:00:10 99
+2017-01-26_03:00:07 99
+2017-01-26_04:00:08 99
+2017-01-26_05:00:08 99
+2017-01-26_06:00:08 99
+2017-01-26_07:00:09 99
+#Palmfarn:battery:::},
+
+conductivity => q{2017-01-27_21:37:29 430
+2017-01-25_22:03:02 507
+2017-01-25_22:20:48 490
+2017-01-25_23:01:10 421
+2017-01-26_00:01:10 417
+2017-01-26_01:01:12 405
+2017-01-26_02:01:11 398
+2017-01-26_03:01:09 393
+2017-01-26_04:01:11 391
+2017-01-26_05:01:11 388
+2017-01-26_06:01:16 386
+2017-01-26_07:01:11 384
+#Palmfarn:conductivity:::},
+    };
+    return $dblog_test_data->{$reading};
 }
 
 sub prepare_database {
-    my ($device, $reading, $dblog, $name, $testdata)= @_;
-
+    my ($device, $dblog, $name, $user_test_data)= @_;
 
     set_attr($name,"review_interval","1440");
     set_attr($name,"DbLog",$dblog);
@@ -173,7 +221,16 @@ sub prepare_database {
     fhem_set_time($now);
     my $start_time = "2017-01-25_08:00:00";
     my $end_time = $now;
-    set_fhem_mock("get $dblog - - $start_time $end_time $device:$reading", $testdata);     
+    foreach my $reading (("moisture","battery","conductivity")) {
+    	my $data = undef;
+    	if (defined $user_test_data) {
+    		$data = $user_test_data;
+    	} else {
+    		$data = get_dblog_test_data($reading);
+            ok(defined $data, "test data for $reading must be defined");
+    	}
+        set_fhem_mock("get $dblog - - $start_time $end_time $device:$reading", $data );
+    }     
 }
 
 1; #end of file

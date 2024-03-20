@@ -42,7 +42,7 @@ print "Log: $_[0] , $_[1] , $_[2] \n";
 # fhem command ##########################
 sub fhem{
     my ($cmd) = @_;
-    ok($cmd ~~ @fhem_expected_list, "fhem $cmd") or diag(Devel::StackTrace->new->as_string);
+    ok($cmd ~~ @fhem_expected_list, "unexpected fhem command: $cmd") or diag(Devel::StackTrace->new->as_string);
     push(@fhem_history,$cmd);
     return $fhem_list{$cmd};  
 }
