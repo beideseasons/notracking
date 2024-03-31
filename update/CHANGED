@@ -1,3 +1,27 @@
+commit a75c7b6ee9de88db8c45b66b4f1c24a36dab1f01
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 11:05:53 2017 +0100
+
+    added checks for conductivity and battery
+
+commit aa1c5295c245fe31421678bf8174f21938cb619c
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 10:45:42 2017 +0100
+
+    improved documentation
+
+commit 7d2e158cb648e068d22eb1f3ff83a65625cfa66f
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 09:48:55 2017 +0100
+
+    refactoring to reuse code for other checks
+
+commit af348a9b5c02e3bb4b7563e6f93fdd4205cd425a
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 00:02:10 2017 +0100
+
+    at what the hell, just use the packages that provide the right features. Forget about the footprint...
+
 commit 0d2015e78a7f456509be586888d674fee1808461
 Author: Christian Kühnel <christian.kuehnel@gmail.com>
 Date:   Sat Jan 28 23:34:51 2017 +0100
@@ -33,28 +57,3 @@ Author: Christian Kühnel <christian.kuehnel@gmail.com>
 Date:   Sat Jan 28 22:37:43 2017 +0100
 
     added email notification
-
-commit 9abcba13662af61e313e7aab929d6586b5d68f4d
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sat Jan 28 22:10:55 2017 +0100
-
-    periodic check woring
-
-commit 0801c908a9f16096344ed46904b103bdb847c641
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sat Jan 28 21:07:23 2017 +0100
-
-    improved tests, fixed several bugs
-
-commit a0df9af63d88e28d09370f2a4b184c28b2919860
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sat Jan 28 14:57:20 2017 +0100
-
-    implemented first simple check, but does not yet return useful
-    results
-
-commit 44d185fcd2c9badbd485a061acc1d4778ae3da01
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sat Jan 28 12:58:11 2017 +0100
-
-    imported basic project setup nothing working yet

@@ -30,6 +30,7 @@ sub Gardener_Initialize {
 	  "update_interval " .
 	  "review_interval " .
 	  "min_moisture ".
+      "min_conductivity ".
 	  "DbLog ".
 	  "MSGMail ".
 	  "send_email:problem_only,always,never";      
@@ -76,6 +77,19 @@ sub Gardener_periodic_update {
 ######################################################
 package Gardener;
 
+my $constants = {
+	min_moisture=> 20,
+	min_conductivity=> 500,
+    min_battery=> 20,
+};
+
+my $units = {
+    moisture=> "%",
+    conductivity=> "us/cm",
+    battery=> "%",
+    brightness=>"lux",	
+};
+
 sub Log {
 	my ($hash, $severity, $message) = @_;
 	return main::Log3($hash->{NAME},$severity, "Gardener $hash->{NAME}: $message");
@@ -83,7 +97,7 @@ sub Log {
 
 
 
-sub Gardener::check {
+sub check {
     my ($hash) = @_;
 	my $device_names = main::AttrVal($hash->{NAME},"devices",undef);
     my $verdict = 1;
@@ -115,42 +129,49 @@ sub Gardener::check {
 	return;
 }
 
-sub Gardener::check_device{
+sub check_device{
     my ($hash,$device) = @_;
 	my $dblog = main::AttrVal($hash->{NAME},"DbLog",undef);
 	my $verdict = 1;
-	my @message = ("report for plant $device:");
+	my @messages = ("report for plant $device:");
 	
 	if ( !defined $dblog ) {
 		my $msg = "Error: Device $hash->{NAME} is missing the DbLog attribute!";
 		Log($hash, 1, $msg);
 		return 0, $msg;
 	}
-	my @moisture_hist = get_history($hash, $device, "moisture");
 	
-	if (scalar(@moisture_hist) == 0) {
-		my $msg = "Error reading history for plant $device!\n";
-		Log($hash, 1, $msg);
-		return 0, $msg;
-	} 
-
-    my $max_moisture = 0;
-    foreach my $row (@moisture_hist) {
-    	$max_moisture = main::max($max_moisture, $row->{value});
-    }
-
-    my $min_moisture =  main::AttrVal($device,"min_moisture",20);
-    if ($max_moisture < $min_moisture) {
-        $verdict = 0;
-        push( @message, "  moisture is too low: maximum was at $max_moisture% instead of $min_moisture%");
-    } else {
-        push( @message,  "  moisture is good: $max_moisture%\n");
-    }
-
-	push( @message, "");
+	foreach my $reading (("moisture","conductivity","battery")) {
+	    my $history = check_reading_history($hash,$device,$reading);
+	    $verdict &= $history->{verdict};
+	    push(@messages,$history->{message});
+	}
 	
-	return ($verdict, @message);
+	return ($verdict, @messages);
 	 
+}
+
+sub check_reading_history {
+	my ($hash,$device,$reading) = @_;
+    my $history = get_history($hash, $device, $reading);
+    my $min_value =  main::AttrVal($device,"min_$reading",$constants->{"min_$reading"});
+    my $verdict = undef;
+    my $message = undef;
+    my $unit = $units->{$reading};
+    
+    if (scalar(@{$history->{list}}) == 0) {
+	    $verdict = 0;
+	    $message = "  Error: did not get any $reading values for $device";
+    } elsif ($history->{max} < $min_value) {
+        $verdict = 0;
+        $message = "  $reading is too low: maximum was at $history->{max} $unit instead of $min_value $unit";
+    } else {
+        $verdict = 1;
+        $message = "  $reading is good: $history->{max} $unit";
+    } 
+
+    return  { verdict=>$verdict, message=>$message};
+	
 }
 
 sub get_history {
@@ -164,25 +185,51 @@ sub get_history {
     my $start_time = timestamp_from_datetime( $now->subtract( minutes=>$review_interval ) );
     
 	my $query_result = main::fhem("get $dblog - - $start_time $end_time $device:$reading","");
-	Log($hash, 5, "result from query: ".$query_result);
 	
+    my $max_value = undef;
+    my $min_value = undef;
+    my $avg_value = undef;
+
 	my @result = ();
-	if (!defined $query_result) {
-		return @result;
-	}
-	foreach my $line (split /\n/, $query_result) {
-		if ( $line !~ m/^#/ ) {
-			my ($timestamp, $value) = split / /, $line;
-			  push( @result, {timestamp => $timestamp, value => $value} );
-		}
+	if (defined $query_result) {
+	    Log($hash, 5, "result from query: $query_result");
+	    foreach my $line (split /\n/, $query_result) {
+	        if ( $line !~ m/^#/ ) {
+	            my ($timestamp, $value) = split / /, $line;
+	            push( @result, {timestamp => $timestamp, value => $value} );
+	            }
+	    }
+	    
+	    if (scalar(@result) == 0) {
+	        my $msg = "History for plant $device ist empty";
+	        Log($hash, 1, $msg);
+	        return { min=>undef, max=>undef, average=>undef, list=>[()] };
+	    } 
+	    
+	    $max_value = $result[0]->{value};
+	    $min_value = $max_value;
+	    my $sum_values = 0;
+	    
+	    foreach my $row (@result) {
+	        $max_value = main::max($max_value, $row->{value});
+	        $min_value = main::max($min_value, $row->{value});
+	        $sum_values += $row->{value};
+	    }
+	    
+	    $avg_value = $sum_values / scalar(@result);
+		
 	}
 	
-	
-	return @result;
+	return { 
+		min => $min_value, 
+		max => $max_value, 
+		average => $avg_value,
+		list => [@result], 
+	}
 }
 
-# strangely fhem always uses string to represent timestamps
-# so we always need to convert the stirngs to DateTime objects to do some math on them
+# Strangely fhem always uses strings to represent timestamps. So we always 
+# need to convert the strings to DateTime objects to do some math on them
 # convert a DateTime to a fhem timestamp string
 
 sub timestamp_from_datetime {
