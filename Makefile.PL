@@ -6,8 +6,7 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME             => 'Gardener',
     AUTHOR           => q{Christian Kühnel <christian.kuehnel@gmail.com>},
-    VERSION		     => '0.1.0',
-    #ABSTRACT_FROM    => 'lib/Venetian.pm',
+    VERSION		     => '0.1.1',
     LICENSE          => 'Apache_2_0',
     PL_FILES         => {},
     MIN_PERL_VERSION => 5.010,
@@ -16,17 +15,19 @@ WriteMakefile(
     },
     BUILD_REQUIRES => {
         'Test::More' => 0,
-        'Test::MockModule' => 0,
-        'Time::HiRes' => 0,
+        #'Test::MockModule' => 0,
+        #'Time::HiRes' => 0,
         'Test::Perl::Critic' => 0,
         'Test::Pod' => 0,
         'Devel::Cover::Report::Coveralls' => 0,
+        'List::Utils' => 0,
+        'DateTime::Format::Strptime' => 0,
+        'DateTime' => 0,
     },
     PREREQ_PM => {
         'experimental' => 0,
     },
     dist  => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean => { FILES => 'fhem-venetian-*' },
 );
 
 #

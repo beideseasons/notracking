@@ -5,6 +5,13 @@ It checks the moisture and conductivity levels reported by the sensors and send 
 f the levels are too low. 
 It also monitors the battery level of the sensor and sends an email if the battery is low.
 
+# project status
+
+Do not install/update if build status is red!
+* [![Build Status](https://travis-ci.org/ChristianKuehnel/fhem-gardener.svg?branch=master)
+* [![Coverage Status]()
+
+
 # Installation
 
 To install the software you will need several Perl modules. The fhem module itself can be 
@@ -19,7 +26,7 @@ On other distributions install the similar packages.
 
 Install the required Perl modules via cpan:
 ```
-cpan -T DateTime DateTime::Format::Strptime List::Utils
+cpan -T DateTime DateTime::Format::Strptime List::Util
 ```
 
 A personal comment on the used Perl modules:
