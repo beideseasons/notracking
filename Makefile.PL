@@ -20,7 +20,7 @@ WriteMakefile(
         'Test::Perl::Critic' => 0,
         'Test::Pod' => 0,
         'Devel::Cover::Report::Coveralls' => 0,
-        'List::Utils' => 0,
+        'List::Util' => 0,
         'DateTime::Format::Strptime' => 0,
         'DateTime' => 0,
     },
