@@ -10,8 +10,8 @@ use warnings;
 use v5.10.1;
 use experimental "smartmatch";
 use Test::More;
-use Time::HiRes "gettimeofday";
-use Test::MockModule;
+#use Time::HiRes "gettimeofday";
+#use Test::MockModule;
 
 use Gardener;
 
