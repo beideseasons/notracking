@@ -118,7 +118,6 @@ sub check {
 		}
 	}
 	
-	print(join("<br>",@messages));
     main::readingsBeginUpdate($hash);
     main::readingsBulkUpdate($hash, "status", $verdict==1 ? "good":"problem" );
     main::readingsBulkUpdate($hash, "status_message", join("<br>",@messages) );
