@@ -26,6 +26,8 @@ sub test_Gardener {
     test_datetime_from_timestamp();
     test_get_history();
     test_check_device_empty_history();
+    test_check_reading_history_low();
+    test_send_email();
     
     done_testing();
 }
@@ -128,6 +130,45 @@ sub test_datetime_from_timestamp {
     # now with a whitespace as separator
     my $timestamp2 = '2017-01-25 21:00:08';
     is($dt, Gardener::datetime_from_timestamp($timestamp2)); 
+}
+
+sub test_check_reading_history_low {
+    note( "test case: ".(caller(0))[3] );   
+    main::reset_mocks();
+    my $hash = {
+    	NAME=>"my_name_is",
+    };
+    my $device = "some_device";
+    my $reading = "moisture";
+    prepare_database($device, "logdb",$hash->{NAME});
+    set_attr($device,"min_moisture",80);
+    my $result = Gardener::check_reading_history($hash,$device,$reading);	
+	ok(!$result->{verdict});
+	like($result->{message},qr/too low/);
+	
+}
+
+sub test_send_email {
+    note( "test case: ".(caller(0))[3] );   
+    main::reset_mocks();
+    my $hash = {
+    	NAME=>"call_be_crazy",
+    };
+    my $verdict = 1;
+    my @messages = ("line 1","line 2");
+    set_attr($hash->{NAME},"MSGMail","email");
+    set_attr($hash->{NAME},"send_email","always");
+    set_fhem_mock("set email clear","");
+    set_fhem_mock("set email add line 1","");
+    set_fhem_mock("set email add line 2","");
+    set_fhem_mock("set email send","");
+    Gardener::trigger_email($hash,$verdict,@messages);	
+    my @fhem_history = @{get_fhem_history()};
+    is($fhem_history[0],"set email clear");
+    is($fhem_history[1],"set email add line 1");
+    is($fhem_history[2],"set email add line 2");
+    is($fhem_history[3],"set email send");
+    is($fhem_history[4],"set email clear");
 }
 
 ######################################################

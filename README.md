@@ -8,7 +8,7 @@ It also monitors the battery level of the sensor and sends an email if the batte
 # project status
 
 Do not install/update if build status is red!
-* [![Build Status](https://travis-ci.org/ChristianKuehnel/fhem-gardener.svg?branch=master)
+* [![Build Status](https://travis-ci.org/ChristianKuehnel/fhem-gardener.svg?branch=master)](https://travis-ci.org/ChristianKuehnel/fhem-gardener)
 * [![Coverage Status](https://coveralls.io/repos/github/ChristianKuehnel/fhem-gardener/badge.svg?branch=master)](https://coveralls.io/github/ChristianKuehnel/fhem-gardener?branch=master)
 
 
