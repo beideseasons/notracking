@@ -1,3 +1,45 @@
+commit c42af39913661c85886fed4f9077131fc206b60c
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 11:59:43 2017 +0100
+
+    increased test coverage
+
+commit 76bdae9a00a23d6a8d2967e958f36a17b448866a
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 11:31:55 2017 +0100
+
+    removed print statement to fix tests
+
+commit 37fb04152865f4b3dd514e5afaa3ffbb78dcd39d
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 11:25:35 2017 +0100
+
+    fixed dependencies in test case
+
+commit c5f074467beab6c47a9da6262bf89b0cf0809d3c
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 11:18:37 2017 +0100
+
+    fixed typo in dependency
+
+commit 61b70a2e13e30d19ce750863984d6ac9b52e05d8
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 11:16:24 2017 +0100
+
+    fixed setup added links to build status
+
+commit 87220d7e63c211c6abb6bd6a2971fb33914125c6
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 11:10:47 2017 +0100
+
+    added travis-ci configuration
+
+commit 0cc617d85e6ee2d5bc83f9091f9a1a46bf3bfcf1
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 11:06:17 2017 +0100
+
+    created new release
+
 commit a75c7b6ee9de88db8c45b66b4f1c24a36dab1f01
 Author: Christian Kühnel <christian.kuehnel@gmail.com>
 Date:   Sun Jan 29 11:05:53 2017 +0100
@@ -15,45 +57,3 @@ Author: Christian Kühnel <christian.kuehnel@gmail.com>
 Date:   Sun Jan 29 09:48:55 2017 +0100
 
     refactoring to reuse code for other checks
-
-commit af348a9b5c02e3bb4b7563e6f93fdd4205cd425a
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sun Jan 29 00:02:10 2017 +0100
-
-    at what the hell, just use the packages that provide the right features. Forget about the footprint...
-
-commit 0d2015e78a7f456509be586888d674fee1808461
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sat Jan 28 23:34:51 2017 +0100
-
-    new release
-
-commit 4f5e18dd89001510d0505ce663123b2b2f3dfcfd
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sat Jan 28 23:32:45 2017 +0100
-
-    removed dependency on List::Util  #2
-
-commit b068ab12438fe5f62454ae7684b111d96ed723e0
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sat Jan 28 22:44:47 2017 +0100
-
-    fixed filename again...
-
-commit 9ffbe3baa3430e656ec2ec1763d53358539bced8
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sat Jan 28 22:40:12 2017 +0100
-
-    fix file name, created new update
-
-commit a6e17718fc0b828d8aecffc26c15e8f562ca8ae0
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sat Jan 28 22:37:55 2017 +0100
-
-    added update site
-
-commit 49597e177a4e3702c296f9e649a1fbda592618ae
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sat Jan 28 22:37:43 2017 +0100
-
-    added email notification
