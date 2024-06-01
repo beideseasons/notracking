@@ -1,3 +1,15 @@
+commit 59acf82b5f3d00a33be76b597fdc343ab8d437d7
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 12:06:38 2017 +0100
+
+    added checks, fixed bug in test mock
+
+commit 15fd86755e425c1e49f92567e46477aeab8c434e
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 12:00:07 2017 +0100
+
+    new release
+
 commit c42af39913661c85886fed4f9077131fc206b60c
 Author: Christian Kühnel <christian.kuehnel@gmail.com>
 Date:   Sun Jan 29 11:59:43 2017 +0100
@@ -45,15 +57,3 @@ Author: Christian Kühnel <christian.kuehnel@gmail.com>
 Date:   Sun Jan 29 11:05:53 2017 +0100
 
     added checks for conductivity and battery
-
-commit aa1c5295c245fe31421678bf8174f21938cb619c
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sun Jan 29 10:45:42 2017 +0100
-
-    improved documentation
-
-commit 7d2e158cb648e068d22eb1f3ff83a65625cfa66f
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sun Jan 29 09:48:55 2017 +0100
-
-    refactoring to reuse code for other checks

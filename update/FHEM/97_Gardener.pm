@@ -158,7 +158,7 @@ sub check_reading_history {
     my $message = undef;
     my $unit = $units->{$reading};
     
-    if (scalar(@{$history->{list}}) == 0) {
+    if (scalar(@{$history->{list}}) == 0 || !defined $history->{max}) {
 	    $verdict = 0;
 	    $message = "  Error: did not get any $reading values for $device";
     } elsif ($history->{max} < $min_value) {
@@ -223,7 +223,7 @@ sub get_history {
 		min => $min_value, 
 		max => $max_value, 
 		average => $avg_value,
-		list => [@result], 
+		list => \@result, 
 	}
 }
 

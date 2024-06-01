@@ -154,7 +154,7 @@ sub AttrVal {
 	ok(defined $device,'device must be defined');
 	ok(defined $name,'name must be defined');
 	if (!defined($attributes{$device})) {
-		return;
+		return $default;
 	}
     my $val = $attributes{$device}{$name};
     if (defined $val) {
