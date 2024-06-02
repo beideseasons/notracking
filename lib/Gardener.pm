@@ -266,7 +266,7 @@ sub trigger_email {
 		if ( $send_email eq "always" or (!$verdict and $send_email eq "problem_only" )) {
 			main::fhem("set $msgmail clear");
 			foreach my $line (@messages) {
-				main::fhem("set $msgmail add $line");
+				main::fhem("set $msgmail add .$line");
 			}
             main::fhem("set $msgmail send");
             main::fhem("set $msgmail clear");
