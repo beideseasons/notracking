@@ -51,7 +51,7 @@ sub test_check {
 	prepare_database($device,$dblog,$hash->{NAME} );
     Gardener::check($hash);
     print(ReadingsVal("gardener","status_message",undef)."\n");
-    is(ReadingsVal("gardener","status",undef),"good");
+    is(ReadingsVal("gardener","STATE",undef),"good");
 }
 
 sub test_check_no_devices {
@@ -61,7 +61,7 @@ sub test_check_no_devices {
         "NAME" => "gardener"
     }; 
     Gardener::check($hash);
-    is(ReadingsVal("gardener","status",undef),"problem");
+    is(ReadingsVal("gardener","STATE",undef),"problem");
     like(ReadingsVal("gardener","status_message",undef),qr/devices/);       
 }
 

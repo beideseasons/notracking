@@ -1,3 +1,16 @@
+commit e0beff8d261f208cbe2255b9dd3c91cea6993929
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 12:49:49 2017 +0100
+
+    adding empty lines after each plant
+    reporting status in STATE field
+
+commit 573443440b0b4e76ebd6ae33db84f82494e41289
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 12:44:57 2017 +0100
+
+    trying to indent email now, dirty workaround for strange interface of MSGmail
+
 commit 22dbcd15be5f599d39feb48329749fc48f3309a8
 Author: Christian Kühnel <christian.kuehnel@gmail.com>
 Date:   Sun Jan 29 12:06:38 2017 +0100
@@ -45,15 +58,3 @@ Author: Christian Kühnel <christian.kuehnel@gmail.com>
 Date:   Sun Jan 29 11:10:47 2017 +0100
 
     added travis-ci configuration
-
-commit 0cc617d85e6ee2d5bc83f9091f9a1a46bf3bfcf1
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sun Jan 29 11:06:17 2017 +0100
-
-    created new release
-
-commit a75c7b6ee9de88db8c45b66b4f1c24a36dab1f01
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sun Jan 29 11:05:53 2017 +0100
-
-    added checks for conductivity and battery

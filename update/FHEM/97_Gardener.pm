@@ -119,7 +119,7 @@ sub check {
 	}
 	
     main::readingsBeginUpdate($hash);
-    main::readingsBulkUpdate($hash, "status", $verdict==1 ? "good":"problem" );
+    main::readingsBulkUpdate($hash, "STATE", $verdict==1 ? "good":"problem" );
     main::readingsBulkUpdate($hash, "status_message", join("<br>",@messages) );
     main::readingsEndUpdate($hash, 1);
 	
@@ -145,6 +145,8 @@ sub check_device{
 	    $verdict &= $history->{verdict};
 	    push(@messages,$history->{message});
 	}
+	
+	push(@messages,""); # add empty line after each message
 	
 	return ($verdict, @messages);
 	 
