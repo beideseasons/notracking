@@ -159,16 +159,16 @@ sub test_send_email {
     set_attr($hash->{NAME},"MSGMail","email");
     set_attr($hash->{NAME},"send_email","always");
     set_fhem_mock("set email clear","");
-    set_fhem_mock("set email add .line 1","");
-    set_fhem_mock("set email add .","");
-    set_fhem_mock("set email add .  line 2","");
+    set_fhem_mock("set email add line 1","");
+    set_fhem_mock("set email add ","");
+    set_fhem_mock("set email add   line 2","");
     set_fhem_mock("set email send","");
     Gardener::trigger_email($hash,$verdict,@messages);	
     my @fhem_history = @{get_fhem_history()};
     is($fhem_history[0],"set email clear");
-    is($fhem_history[1],"set email add .line 1");
-    is($fhem_history[2],"set email add .");
-    is($fhem_history[3],"set email add .  line 2");
+    is($fhem_history[1],"set email add line 1");
+    is($fhem_history[2],"set email add ");
+    is($fhem_history[3],"set email add   line 2");
     is($fhem_history[4],"set email send");
     is($fhem_history[5],"set email clear");
 }
