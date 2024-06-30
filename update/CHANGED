@@ -1,4 +1,16 @@
-commit e0beff8d261f208cbe2255b9dd3c91cea6993929
+commit 104655fb2da5cc8ca08d85a9233166a33e62f799
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 12:54:47 2017 +0100
+
+    added undef function
+
+commit b2eea5e100eb730d8ed8453290d6940e207455d8
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 12:51:47 2017 +0100
+
+    removed dots, looks even worse
+
+commit 591e4d6dbb60da74853df74e78be63f6f7418ec1
 Author: Christian Kühnel <christian.kuehnel@gmail.com>
 Date:   Sun Jan 29 12:49:49 2017 +0100
 
@@ -46,15 +58,3 @@ Author: Christian Kühnel <christian.kuehnel@gmail.com>
 Date:   Sun Jan 29 11:18:37 2017 +0100
 
     fixed typo in dependency
-
-commit 61b70a2e13e30d19ce750863984d6ac9b52e05d8
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sun Jan 29 11:16:24 2017 +0100
-
-    fixed setup added links to build status
-
-commit 87220d7e63c211c6abb6bd6a2971fb33914125c6
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sun Jan 29 11:10:47 2017 +0100
-
-    added travis-ci configuration

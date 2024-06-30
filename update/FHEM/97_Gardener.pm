@@ -18,7 +18,7 @@ use List::Util qw(min max);
 sub Gardener_Initialize {
     my ($hash) = @_;
     $hash->{DefFn}      = 'Gardener_Define';
-    #$hash->{UndefFn}    = 'Gardener_Undef';
+    $hash->{UndefFn}    = 'Gardener_Undef';
     #hash->{SetFn}      = 'Gardener_Set';
     $hash->{GetFn}      = 'Gardener_Get';
     #$hash->{AttrFn}     = 'Gardener_Attr';
@@ -37,11 +37,16 @@ sub Gardener_Initialize {
     return;
 }
 
-
 sub Gardener_Define {
     my ($hash, $a, $h) = @_;
     InternalTimer(gettimeofday()+10, "Gardener_periodic_update", $hash);    
     return;
+}
+
+sub Gardener_Undef {
+	my ( $hash, $name) = @_; 
+	RemoveInternalTimer($hash);
+	return;
 }
 
 sub Gardener_Notify {
@@ -268,7 +273,7 @@ sub trigger_email {
 		if ( $send_email eq "always" or (!$verdict and $send_email eq "problem_only" )) {
 			main::fhem("set $msgmail clear");
 			foreach my $line (@messages) {
-				main::fhem("set $msgmail add .$line");
+				main::fhem("set $msgmail add $line");
 			}
             main::fhem("set $msgmail send");
             main::fhem("set $msgmail clear");
