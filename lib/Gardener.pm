@@ -33,6 +33,7 @@ sub Gardener_Initialize {
       "min_conductivity ".
 	  "DbLog ".
 	  "MSGMail ".
+	  "max_reading_age ".
 	  "send_email:problem_only,always,never";      
     return;
 }
@@ -86,6 +87,7 @@ my $constants = {
 	min_moisture=> 20,
 	min_conductivity=> 500,
     min_battery=> 20,
+    max_reading_age => 3*60, #in minutes
 };
 
 my $units = {
@@ -145,7 +147,13 @@ sub check_device{
 		return 0, $msg;
 	}
 	
-	foreach my $reading (("moisture","conductivity","battery")) {
+	#check the current value
+    foreach my $reading (("moisture", "battery")) {
+        check_single_reading($hash,$device,$reading);
+    }
+    
+    #check the history 
+    foreach my $reading (("conductivity")) {
 	    my $history = check_reading_history($hash,$device,$reading);
 	    $verdict &= $history->{verdict};
 	    push(@messages,$history->{message});
@@ -155,6 +163,46 @@ sub check_device{
 	
 	return ($verdict, @messages);
 	 
+}
+
+sub check_single_reading{
+	my ($hash,$device,$reading) = @_;
+    my $value = main::ReadingsVal($device,$reading,undef);
+    my $min_value =  main::AttrVal($device,"min_$reading",$constants->{"min_$reading"});
+    my $verdict = undef;
+    my $message = undef;
+    my $unit = $units->{$reading};
+    my $max_age =  main::AttrVal($device,"max_reading_age",$constants->{"max_reading_age"});
+    my $age = age_in_minutes($device,$reading);
+        
+    #check value
+    if (!defined $value or !defined $age) {
+    	$verdict = 1;
+    	$message = "  could not read $reading!"; 
+    } elsif ( $age > $max_age ) {
+        $verdict = 0;
+        $message = "  $reading is too old: $age minutes, last value was $value $unit";    
+    } elsif ($value < $min_value) {
+        $verdict = 0;
+        $message = "  $reading is too low: $value $unit instead of $min_value $unit";    
+    } else {
+        $verdict = 1;
+        $message = "  $reading is good: $value $unit";    	
+    }       
+    
+    return  { verdict=>$verdict, message=>$message};    
+}
+
+sub age_in_minutes {
+	my ($device,$reading) = @_;
+	my $timestamp = main::ReadingsAge($device,$reading,undef);
+	if (!defined $timestamp) {
+		return;
+	}
+	$timestamp = datetime_from_timestamp( $timestamp );
+	my $now = datetime_from_timestamp( main::TimeNow() );
+	my $age = $now->subtract_datetime($timestamp);
+	return $age->in_units( 'minutes');
 }
 
 sub check_reading_history {
@@ -176,8 +224,7 @@ sub check_reading_history {
         $message = "  $reading is good: $history->{max} $unit";
     } 
 
-    return  { verdict=>$verdict, message=>$message};
-	
+    return  { verdict=>$verdict, message=>$message};	
 }
 
 sub get_history {

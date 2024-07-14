@@ -28,6 +28,7 @@ sub test_Gardener {
     test_check_device_empty_history();
     test_check_reading_history_low();
     test_send_email();
+    test_age_in_minutes();
     
     done_testing();
 }
@@ -163,7 +164,9 @@ sub test_send_email {
     set_fhem_mock("set email add ","");
     set_fhem_mock("set email add   line 2","");
     set_fhem_mock("set email send","");
+
     Gardener::trigger_email($hash,$verdict,@messages);	
+
     my @fhem_history = @{get_fhem_history()};
     is($fhem_history[0],"set email clear");
     is($fhem_history[1],"set email add line 1");
@@ -172,6 +175,21 @@ sub test_send_email {
     is($fhem_history[4],"set email send");
     is($fhem_history[5],"set email clear");
 }
+
+sub test_age_in_minutes {
+    note( "test case: ".(caller(0))[3] );   
+    main::reset_mocks();
+    my $device = "someThing";
+    my $reading = "someString";   
+    my $now = "2017-01-26_08:10:00";
+    fhem_set_time($now);
+    add_reading_time($device, $reading, 99, "2017-01-26_08:00:00");
+
+	my $age = Gardener::age_in_minutes($device,$reading);
+
+	is($age, 10);
+}
+
 
 ######################################################
 # functions to prepare data for tests
@@ -274,6 +292,8 @@ sub prepare_database {
     	}
         set_fhem_mock("get $dblog - - $start_time $end_time $device:$reading", $data );
     }     
+    add_reading_time($device,"moisture",21,$now);
+    add_reading_time($device,"battery",95,$now);
 }
 
 1; #end of file
