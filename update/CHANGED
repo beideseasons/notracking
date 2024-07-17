@@ -1,3 +1,9 @@
+commit 15e74de52fc8f7d4b51224f4d9841d7d1ec174ad
+Author: Christian Kühnel <christian.kuehnel@gmail.com>
+Date:   Sun Jan 29 18:47:17 2017 +0100
+
+    improved detection algorithm. Using live data for moisture and battery and historic data for conductivity.
+
 commit ef514d91778d8a7e027868941e1e9eb8714a8846
 Author: Christian Kühnel <christian.kuehnel@gmail.com>
 Date:   Sun Jan 29 12:54:47 2017 +0100
@@ -52,9 +58,3 @@ Author: Christian Kühnel <christian.kuehnel@gmail.com>
 Date:   Sun Jan 29 11:25:35 2017 +0100
 
     fixed dependencies in test case
-
-commit c5f074467beab6c47a9da6262bf89b0cf0809d3c
-Author: Christian Kühnel <christian.kuehnel@gmail.com>
-Date:   Sun Jan 29 11:18:37 2017 +0100
-
-    fixed typo in dependency

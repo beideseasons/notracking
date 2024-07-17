@@ -108,7 +108,7 @@ sub ReadingsAge {
     my ($device,$reading,$default) = @_;
     my $time = $readings{$device}{$reading}{timestamp};
     #print "readings $device, $reading, $value \n";
-    ok(defined $time,"ReadingsAge $device:$reading");
+    ok(defined $time,"ReadingsAge undefined age of $device:$reading");
     return $time;
 }
 

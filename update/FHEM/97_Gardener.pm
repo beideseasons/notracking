@@ -172,16 +172,16 @@ sub check_single_reading{
     my $verdict = undef;
     my $message = undef;
     my $unit = $units->{$reading};
-    my $max_age =  main::AttrVal($device,"max_reading_age",$constants->{"max_reading_age"});
-    my $age = age_in_minutes($device,$reading);
+    #my $max_age =  main::AttrVal($device,"max_reading_age",$constants->{"max_reading_age"});
+    #my $age = age_in_minutes($device,$reading);
         
-    #check value
-    if (!defined $value or !defined $age) {
+    #if (!defined $value or !defined $age) {
+    if (!defined $value ) {
     	$verdict = 1;
     	$message = "  could not read $reading!"; 
-    } elsif ( $age > $max_age ) {
-        $verdict = 0;
-        $message = "  $reading is too old: $age minutes, last value was $value $unit";    
+    #} elsif ( $age > $max_age ) {
+    #    $verdict = 0;
+    #    $message = "  $reading is too old: $age minutes, last value was $value $unit";    
     } elsif ($value < $min_value) {
         $verdict = 0;
         $message = "  $reading is too low: $value $unit instead of $min_value $unit";    

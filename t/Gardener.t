@@ -185,7 +185,7 @@ sub test_age_in_minutes {
     fhem_set_time($now);
     add_reading_time($device, $reading, 99, "2017-01-26_08:00:00");
 
-	my $age = Gardener::age_in_minutes($device,$reading);
+    my$age = Gardener::age_in_minutes($device,$reading);
 
 	is($age, 10);
 }
